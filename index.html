@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Minicarrinho de Compras</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      h2 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        font-size: 28px;
+      }
+
+      .produtos {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .card {
+        background: #ffffff;
+        padding: 20px 15px;
+        border-radius: 12px;
+        text-align: center;
+        flex: 1;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .card h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+      }
+
+      .card p {
+        color: #666;
+        font-weight: 600;
+        margin-bottom: 15px;
+      }
+
+      .card button {
+        background: #28a745;
+        color: #ffffff;
+        font-family: inherit;
+        font-weight: 600;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+        width: 100%;
+      }
+
+      .card button:hover {
+        background: #218838;
+      }
+
+      .carrinho-box {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      }
+
+      .carrinho-box h3 {
+        margin-top: 0;
+        color: #2c3e50;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 8px;
+        border-bottom: 1px solid #f0f0f0;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: background 0.2s;
+      }
+
+      li:hover {
+        background: #fff0f0;
+      }
+
+      .qtd {
+        background: #e9ecef;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        color: #495057;
+        margin-left: 6px;
+      }
+
+      .total-box {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #2c3e50;
+      }
+
+      #btn-esvaziar {
+        background: #dc3545;
+        color: #ffffff;
+        font-family: inherit;
+        font-weight: 600;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      #btn-esvaziar:hover {
+        background: #c82333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>🍇 Feirinha de Frutas</h2>
+
+      <div class="produtos">
+        <div class="card">
+          <h3>🍎 Maçã</h3>
+          <p>R$ 3,50</p>
+          <button class="btn-add" data-nome="Maçã" data-preco="3.50">
+            Adicionar
+          </button>
+        </div>
+        <div class="card">
+          <h3>🍌 Banana</h3>
+          <p>R$ 2,00</p>
+          <button class="btn-add" data-nome="Banana" data-preco="2.00">
+            Adicionar
+          </button>
+        </div>
+        <div class="card">
+          <h3>🥑 Abacate</h3>
+          <p>R$ 6,00</p>
+          <button class="btn-add" data-nome="Abacate" data-preco="6.00">
+            Adicionar
+          </button>
+        </div>
+      </div>
+
+      <div class="carrinho-box">
+        <h3>🛒 Seu Carrinho</h3>
+        <ul id="lista-carrinho"></ul>
+        <div class="total-box">
+          <button id="btn-esvaziar">Esvaziar Carrinho</button>
+          <span>Total: R$ <span id="valor-total">0.00</span></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const botoes = document.querySelectorAll(".btn-add");
+      const listaCarrinho = document.getElementById("lista-carrinho");
+      const valorTotalEl = document.getElementById("valor-total");
+      const btnEsvaziar = document.getElementById("btn-esvaziar");
+
+      let total = 0;
+      let carrinho = {};
+
+      botoes.forEach((botao) => {
+        botao.addEventListener("click", () => {
+          const nome = botao.dataset.nome;
+          const preco = parseFloat(botao.dataset.preco);
+
+          if (carrinho[nome]) {
+            carrinho[nome].qtd++;
+            carrinho[nome].elQtd.textContent = `x${carrinho[nome].qtd}`;
+          } else {
+            const li = document.createElement("li");
+            li.title = "Clique para remover 1 unidade";
+            li.innerHTML = `<span>${nome} <strong class="qtd">x1</strong></span> <span>R$ ${preco.toFixed(2)}</span>`;
+
+            li.addEventListener("click", () => {
+              total = Math.max(0, total - preco);
+              valorTotalEl.textContent = total.toFixed(2);
+
+              carrinho[nome].qtd--;
+
+              if (carrinho[nome].qtd > 0) {
+                carrinho[nome].elQtd.textContent = `x${carrinho[nome].qtd}`;
+              } else {
+                li.remove();
+                delete carrinho[nome];
+              }
+            });
+
+            listaCarrinho.appendChild(li);
+            carrinho[nome] = {
+              qtd: 1,
+              elQtd: li.querySelector(".qtd"),
+            };
+          }
+
+          total += preco;
+          valorTotalEl.textContent = total.toFixed(2);
+        });
+      });
+
+      btnEsvaziar.addEventListener("click", () => {
+        listaCarrinho.innerHTML = "";
+        total = 0;
+        carrinho = {};
+        valorTotalEl.textContent = "0.00";
+      });
+    </script>
+  </body>
+</html>
